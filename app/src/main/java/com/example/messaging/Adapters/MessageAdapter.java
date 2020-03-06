@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.messaging.Chat;
 import com.example.messaging.MessageActivity;
 import com.example.messaging.R;
@@ -54,6 +55,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         holder.chatText.setText(chat.getMessage());
         holder.chatPic.setImageResource(R.mipmap.ic_launcher_round);
+        if (imageURL.equals("default")) {
+            holder.chatPic.setImageResource(R.drawable.default_user_icon);
+        }
+        else {
+            Glide.with(context).load(imageURL).into(holder.chatPic);
+        }
 
     }
 

@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.messaging.Adapters.MessageAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,6 +49,7 @@ public class MessageActivity extends AppCompatActivity {
 
     ImageButton btnSend;
     EditText textSend;
+    String url = "default";
 
     RecyclerView recyclerView;
     MessageAdapter messageAdapter;
@@ -103,14 +105,21 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
-        readMessages(firebaseUser.getUid(), userId, "Image URL");
+        //readMessages(firebaseUser.getUid(), userId, "Image URL");
 
-        /*usersReference.document(userId).get()
+        usersReference.document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
-                        readMessages(firebaseUser.getUid(), userId, "Image URL");
+                        url = userProfile.getImageURL();
+                        if (url.equals("default")) {
+                            messageImage.setImageResource(R.drawable.default_user_icon);
+                        }
+                        else {
+                            Glide.with(MessageActivity.this).load(url).into(messageImage);
+                        }
+                        readMessages(firebaseUser.getUid(), userId, url);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -119,7 +128,9 @@ public class MessageActivity extends AppCompatActivity {
                         Toast.makeText(MessageActivity.this, "Error retrieving user info", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
                     }
-                });*/
+                });
+
+
 
     }
 
@@ -141,7 +152,7 @@ public class MessageActivity extends AppCompatActivity {
                         Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
                     }
                 });
-        readMessages(sender, receiver, "Image URL");
+        readMessages(sender, receiver, url);
     }
 
     private void readMessages(final String myID, final String userID, final String imageURL) {
@@ -163,6 +174,7 @@ public class MessageActivity extends AppCompatActivity {
                         }
                         messageAdapter = new MessageAdapter(MessageActivity.this, chats, imageURL);
                         recyclerView.setAdapter(messageAdapter);
+                        messageAdapter.notifyDataSetChanged();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

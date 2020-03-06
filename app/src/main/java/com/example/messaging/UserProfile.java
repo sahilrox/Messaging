@@ -1,15 +1,16 @@
 package com.example.messaging;
 
 public class UserProfile {
-    private String name, email, tag, mobile, password, uid;
+    private String name, email, tag, mobile, password, uid, imageURL;
 
-    public UserProfile(String name, String email, String tag, String mobile, String password, String uid) {
+    public UserProfile(String name, String email, String tag, String mobile, String password, String uid, String imageURL) {
         this.name = name;
         this.email = email;
         this.tag = tag;
         this.mobile = mobile;
         this.password = password;
         this.uid = uid;
+        this.imageURL = imageURL;
     }
 
     public UserProfile() {
@@ -37,5 +38,9 @@ public class UserProfile {
 
     public String getUid() {
         return uid;
+    }
+
+    public String getImageURL() {
+        return imageURL;
     }
 }

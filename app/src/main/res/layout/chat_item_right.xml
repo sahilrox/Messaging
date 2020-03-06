@@ -15,15 +15,15 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentRight="true"
-            android:src="@mipmap/ic_launcher_round" />
+            android:src="@mipmap/ic_launcher_round"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/chat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
             android:layout_marginTop="10dp"
-            android:layout_toLeftOf="@+id/chat_pic"
+            android:layout_alignParentRight="true"
             android:background="@drawable/chatbubble_right"
             android:maxWidth="250dp"
             android:paddingLeft="10dp"

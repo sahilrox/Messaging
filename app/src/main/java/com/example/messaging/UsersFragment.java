@@ -76,6 +76,7 @@ public class UsersFragment extends Fragment {
 
                         userAdapter = new UserAdapter(getContext(), users);
                         recyclerView.setAdapter(userAdapter);
+                        userAdapter.notifyDataSetChanged();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.messaging.MessageActivity;
 import com.example.messaging.R;
 import com.example.messaging.UserProfile;
@@ -39,7 +40,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final UserProfile userProfile = users.get(position);
         holder.userName.setText(userProfile.getName());
-        holder.profileImage.setImageResource(R.mipmap.ic_launcher_round);
+        if (userProfile.getImageURL().equals("default")) {
+            holder.profileImage.setImageResource(R.drawable.default_user_icon);
+        }
+        else {
+            Glide.with(context).load(userProfile.getImageURL()).into(holder.profileImage);
+        }
+
         holder.tag.setText("#".concat(userProfile.getTag()));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
