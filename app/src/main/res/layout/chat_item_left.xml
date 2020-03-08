@@ -26,4 +26,14 @@
         android:textAppearance="?attr/textAppearanceBody2"
         android:maxWidth="250dp" />
 
+    <ImageView
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:id="@+id/seen_image"
+        android:src="@drawable/ic_check_black_24dp"
+        android:layout_marginLeft="20dp"
+        android:layout_alignLeft="@id/chat_text"
+        android:layout_below="@id/chat_text"
+        android:visibility="visible"/>
+
 </RelativeLayout>

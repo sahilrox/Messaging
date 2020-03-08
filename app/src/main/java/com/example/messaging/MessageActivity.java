@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
@@ -60,6 +61,7 @@ public class MessageActivity extends AppCompatActivity {
 
 
     Intent intent;
+    EventListener<QuerySnapshot> seenListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +123,7 @@ public class MessageActivity extends AppCompatActivity {
                             messageImage.setImageResource(R.drawable.default_user_icon);
                         }
                         else {
-                            Glide.with(MessageActivity.this).load(url).into(messageImage);
+                            Glide.with(getApplicationContext()).load(url).into(messageImage);
                         }
                         readMessages(firebaseUser.getUid(), userId, url);
                     }
@@ -133,6 +135,8 @@ public class MessageActivity extends AppCompatActivity {
                         Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
                     }
                 });
+
+        seenMessage(userId);
 
 //        usersReference.document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
 //            @Override
@@ -162,7 +166,7 @@ public class MessageActivity extends AppCompatActivity {
     private void sendMessage(String sender, String receiver, String message) {
 
 
-        Chat chat = new Chat(sender, receiver, message);
+        Chat chat = new Chat(sender, receiver, message, false);
 
         msgReference.document(Double.toString(System.currentTimeMillis())).set(chat)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -233,6 +237,27 @@ public class MessageActivity extends AppCompatActivity {
                 messageAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    private void seenMessage(final String userId) {
+        seenListener = new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(MessageActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onEvent: "+e.getLocalizedMessage());
+                }
+                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Chat chat = documentSnapshot.toObject(Chat.class);
+                    if (chat.getReceiver().equals(firebaseUser.getUid()) && chat.getSender().equals(userId)) {
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("isseen", true);
+                        documentSnapshot.getReference().update(hashMap);
+                    }
+                }
+            }
+        };
+        msgReference.addSnapshotListener(seenListener);
     }
 
     private void setStatus(String status) {

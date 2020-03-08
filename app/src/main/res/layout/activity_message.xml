@@ -63,6 +63,8 @@
             android:background="@android:color/transparent"
             android:layout_marginLeft="10dp"
             android:hint="Type a message..."
+            android:maxLines="5"
+            android:inputType="textCapSentences"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/btnSend"/>
 

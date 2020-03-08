@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText email, password;
     private ProgressDialog progressDialog;
     private FirebaseUser user;
+    private TextView forgotPass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
 
         login = findViewById(R.id.loginBtn);
+        forgotPass = findViewById(R.id.forgotPass);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
                 {
                     validate(email.getText().toString(),password.getText().toString());
                 }
+            }
+        });
+
+        forgotPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ForgotPassword.class));
             }
         });
 

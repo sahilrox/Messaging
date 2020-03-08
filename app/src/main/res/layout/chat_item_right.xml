@@ -18,21 +18,41 @@
             android:src="@mipmap/ic_launcher_round"
             android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/chat_text"
+        <RelativeLayout
+            android:id="@+id/chat_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_alignParentRight="true"
-            android:background="@drawable/chatbubble_right"
-            android:maxWidth="250dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="5dp"
-            android:paddingRight="20dp"
-            android:paddingBottom="5dp"
-            android:text="I'm good. How are you? What you doing? I hope all is well."
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:textSize="18sp" />
+            android:layout_marginTop="10dp"
+            android:background="@drawable/chatbubble_right">
+
+            <TextView
+                android:id="@+id/chat_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello how are you? I hope you are doing fine. I am justasifbiasfbhiwefweifbwuibfwefiwefbiwebf typing this to check if the text box is working fine. Cool."
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="20dp"
+                android:textSize="18sp" />
+
+
+
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/seen_image"
+            android:src="@drawable/ic_check_black_24dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/chat_box"
+            android:visibility="gone"
+            android:layout_marginRight="20dp"
+            />
+
+
 
     </RelativeLayout>
 
