@@ -1,6 +1,7 @@
 package com.example.messaging;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,7 +25,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
@@ -70,7 +73,7 @@ public class MessageActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                startActivity(new Intent(MessageActivity.this, HomePage.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
         });
 
@@ -130,6 +133,27 @@ public class MessageActivity extends AppCompatActivity {
                     }
                 });
 
+//        usersReference.document(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+//                if (e != null) {
+//                    Toast.makeText(MessageActivity.this, "Error retrieving user info", Toast.LENGTH_SHORT).show();
+//                    Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
+//                    return;
+//                }
+//
+//                UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
+//                url = userProfile.getImageURL();
+//                if (url.equals("default")) {
+//                    messageImage.setImageResource(R.drawable.default_user_icon);
+//                }
+//                else {
+//                    Glide.with(MessageActivity.this).load(url).into(messageImage);
+//                }
+//                readMessages(firebaseUser.getUid(), userId, url);
+//            }
+//        });
+
 
 
     }
@@ -158,31 +182,74 @@ public class MessageActivity extends AppCompatActivity {
     private void readMessages(final String myID, final String userID, final String imageURL) {
         chats = new ArrayList<>();
 
-        msgReference.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        chats.clear();
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Chat chat = documentSnapshot.toObject(Chat.class);
-                            if (chat.getReceiver().equals(myID) && chat.getSender().equals(userID) ||
-                                    chat.getReceiver().equals(userID) && chat.getSender().equals(myID)) {
-                                chats.add(chat);
-                            }
+//        msgReference.get()
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                        chats.clear();
+//                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                            Chat chat = documentSnapshot.toObject(Chat.class);
+//                            if (chat.getReceiver().equals(myID) && chat.getSender().equals(userID) ||
+//                                    chat.getReceiver().equals(userID) && chat.getSender().equals(myID)) {
+//                                chats.add(chat);
+//                            }
+//
+//
+//                        }
+//                        messageAdapter = new MessageAdapter(MessageActivity.this, chats, imageURL);
+//                        recyclerView.setAdapter(messageAdapter);
+//                        messageAdapter.notifyDataSetChanged();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(MessageActivity.this, "Error retrieving chats", Toast.LENGTH_SHORT).show();
+//                        Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
+//                    }
+//                });
+
+        msgReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(MessageActivity.this, "Error retrieving chats", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
+                    return;
+                }
+                chats.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Chat chat = documentSnapshot.toObject(Chat.class);
+                    if (chat.getReceiver().equals(myID) && chat.getSender().equals(userID) ||
+                            chat.getReceiver().equals(userID) && chat.getSender().equals(myID)) {
+                        chats.add(chat);
+                    }
 
 
-                        }
-                        messageAdapter = new MessageAdapter(MessageActivity.this, chats, imageURL);
-                        recyclerView.setAdapter(messageAdapter);
-                        messageAdapter.notifyDataSetChanged();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(MessageActivity.this, "Error retrieving chats", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
-                    }
-                });
+                }
+                messageAdapter = new MessageAdapter(MessageActivity.this, chats, imageURL);
+                recyclerView.setAdapter(messageAdapter);
+                messageAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void setStatus(String status) {
+        HashMap<String, Object>  hashMap = new HashMap<>();
+        hashMap.put("status", status);
+
+        usersReference.document(firebaseUser.getUid()).update(hashMap);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setStatus("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setStatus("offline");
     }
 }

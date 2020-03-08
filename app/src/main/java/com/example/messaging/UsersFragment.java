@@ -3,6 +3,7 @@ package com.example.messaging;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +20,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
@@ -60,32 +63,57 @@ public class UsersFragment extends Fragment {
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         CollectionReference reference = db.collection("Users");
 
-        reference.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        users.clear();
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
+//        reference.get()
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                        users.clear();
+//                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                            UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
+//
+//                            assert firebaseUser != null;
+//                            if (!userProfile.getUid().equals(firebaseUser.getUid())) {
+//                                users.add(userProfile);
+//                            }
+//                        }
+//
+//                        userAdapter = new UserAdapter(getContext(), users, false);
+//                        recyclerView.setAdapter(userAdapter);
+//                        userAdapter.notifyDataSetChanged();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(getContext(),"Could not display Users", Toast.LENGTH_SHORT).show();
+//                        Log.d(TAG, "onFailure: "+e.getLocalizedMessage());
+//                    }
+//                });
 
-                            assert firebaseUser != null;
-                            if (!userProfile.getUid().equals(firebaseUser.getUid())) {
-                                users.add(userProfile);
-                            }
-                        }
+        reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(getContext(),"Could not display Users", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onFailure: "+e.getLocalizedMessage());
+                    return;
+                }
+                users.clear();
+                assert queryDocumentSnapshots != null;
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
 
-                        userAdapter = new UserAdapter(getContext(), users);
-                        recyclerView.setAdapter(userAdapter);
-                        userAdapter.notifyDataSetChanged();
+                    assert firebaseUser != null;
+                    if (!userProfile.getUid().equals(firebaseUser.getUid())) {
+                        users.add(userProfile);
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(),"Could not display Users", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "onFailure: "+e.getLocalizedMessage());
-                    }
-                });
+                }
+
+                userAdapter = new UserAdapter(getContext(), users, false);
+                recyclerView.setAdapter(userAdapter);
+                userAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
 

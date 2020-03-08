@@ -23,10 +23,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     private Context context;
     private List<UserProfile> users;
+    private boolean canChat;
 
-    public UserAdapter(Context context, List<UserProfile> users) {
+    public UserAdapter(Context context, List<UserProfile> users, boolean canChat) {
         this.context = context;
         this.users = users;
+        this.canChat = canChat;
     }
 
     @NonNull
@@ -45,6 +47,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         }
         else {
             Glide.with(context).load(userProfile.getImageURL()).into(holder.profileImage);
+        }
+
+        if (canChat) {
+            if (userProfile.getStatus().equals("online")) {
+                holder.onlineImage.setVisibility(View.VISIBLE);
+                holder.offlineImage.setVisibility(View.GONE);
+            } else {
+                holder.onlineImage.setVisibility(View.GONE);
+                holder.offlineImage.setVisibility(View.VISIBLE);
+            }
+        } else {
+            holder.onlineImage.setVisibility(View.GONE);
+            holder.offlineImage.setVisibility(View.GONE);
         }
 
         holder.tag.setText("#".concat(userProfile.getTag()));
@@ -68,6 +83,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView userName, tag;
         public ImageView profileImage;
+        public ImageView onlineImage, offlineImage;
 
 
         public ViewHolder(View itemView) {
@@ -76,6 +92,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             userName = itemView.findViewById(R.id.user_name);
             profileImage = itemView.findViewById(R.id.profile_image);
             tag = itemView.findViewById(R.id.user_tag);
+            onlineImage = itemView.findViewById(R.id.online_status);
+            offlineImage = itemView.findViewById(R.id.offline_status);
 
         }
 

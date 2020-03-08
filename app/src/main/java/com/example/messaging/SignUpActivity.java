@@ -325,7 +325,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         String imageURL = uri.toString();
-                                        UserProfile user = new UserProfile(sname, semail, stag, smobile, spass, UID, imageURL);
+                                        UserProfile user = new UserProfile(sname, semail, stag, smobile, spass, UID, imageURL,"offline");
                                         //usersRef.add(user);
                                         usersRef.document(UID).set(user);
                                     }
@@ -341,7 +341,7 @@ public class SignUpActivity extends AppCompatActivity {
                     });
 
         } else {
-            UserProfile user = new UserProfile(sname, semail, stag, smobile, spass, UID, "default");
+            UserProfile user = new UserProfile(sname, semail, stag, smobile, spass, UID, "default","offline");
             //usersRef.add(user);
             usersRef.document(UID).set(user);
         }

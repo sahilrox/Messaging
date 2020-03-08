@@ -18,12 +18,18 @@ import android.widget.Toast;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class HomePage extends AppCompatActivity {
     
     private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference usersReference = db.collection("Users");
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +40,7 @@ public class HomePage extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
         firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = firebaseAuth.getCurrentUser();
+        firebaseUser = firebaseAuth.getCurrentUser();
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -42,6 +48,7 @@ public class HomePage extends AppCompatActivity {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.addFragment(new ChatsFragment(), "Chats");
         viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+        viewPagerAdapter.addFragment(new ProfileFragment(), "Profile");
         viewPager.setAdapter(viewPagerAdapter);
 
         tabLayout.setupWithViewPager(viewPager);
@@ -59,16 +66,15 @@ public class HomePage extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.logout:
                 logout();
-                break;
+                return true;
         }
-        return true;
+        return false;
     }
 
     private void logout() {
         firebaseAuth.signOut();
         Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(HomePage.this, MainActivity.class));
-        finish();
+        startActivity(new Intent(HomePage.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -104,5 +110,24 @@ public class HomePage extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return titles.get(position);
         }
+    }
+
+    private void setStatus(String status) {
+        HashMap<String, Object>  hashMap = new HashMap<>();
+        hashMap.put("status", status);
+
+        usersReference.document(firebaseUser.getUid()).update(hashMap);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setStatus("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setStatus("offline");
     }
 }

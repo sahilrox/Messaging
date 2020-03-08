@@ -3,6 +3,7 @@ package com.example.messaging;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +20,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -55,74 +58,130 @@ public class ChatsFragment extends Fragment {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         usersList = new ArrayList<>();
 
-        chatsReference.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        usersList.clear();
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Chat chat = documentSnapshot.toObject(Chat.class);
+//        chatsReference.get()
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                        usersList.clear();
+//                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                            Chat chat = documentSnapshot.toObject(Chat.class);
+//
+//                            if (chat.getSender().equals(firebaseUser.getUid())) {
+//                                usersList.add(chat.getReceiver());
+//                            }
+//                            if (chat.getReceiver().equals(firebaseUser.getUid())) {
+//                                usersList.add(chat.getSender());
+//                            }
+//                        }
+//                        Log.d(TAG, "onSuccess: "+usersList);
+//                        readChats();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(getContext(), "Error retrieving chat users", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
-                            if (chat.getSender().equals(firebaseUser.getUid())) {
-                                usersList.add(chat.getReceiver());
-                            }
-                            if (chat.getReceiver().equals(firebaseUser.getUid())) {
-                                usersList.add(chat.getSender());
-                            }
-                        }
-                        Log.d(TAG, "onSuccess: "+usersList);
-                        readChats();
+        chatsReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.d(TAG, "onEvent: " + e.getLocalizedMessage());
+                    return;
+                }
+
+                usersList.clear();
+                assert queryDocumentSnapshots != null;
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Chat chat = documentSnapshot.toObject(Chat.class);
+
+                    if (chat.getSender().equals(firebaseUser.getUid())) {
+                        usersList.add(chat.getReceiver());
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Error retrieving chat users", Toast.LENGTH_SHORT).show();
+                    if (chat.getReceiver().equals(firebaseUser.getUid())) {
+                        usersList.add(chat.getSender());
                     }
-                });
+                }
+                Log.d(TAG, "onSuccess: " + usersList);
+                readChats();
+            }
+
+        });
         return view;
     }
 
     private void readChats() {
         users = new ArrayList<>();
 
-        usersReference.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        users.clear();
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
+//        usersReference.get()
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                        users.clear();
+//                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                            UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
+//
+//                            // display a user from chats
+//                            for (String id : usersList) {
+//                                if (userProfile.getUid().equals(id)) {
+//                                    if (users.size() != 0) {
+//                                        for (UserProfile userProfile1 : users) {
+//                                            if (!userProfile.getUid().equals(userProfile1.getUid())) {
+//                                                users.add(userProfile);
+//                                            }
+//                                        }
+//                                    } else {
+//                                        users.add(userProfile);
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                        userAdapter = new UserAdapter(getContext(), users, true);
+//                        chatsView.setAdapter(userAdapter);
+//
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(getContext(), "Error retrieving user chats", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+        usersReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(getContext(), "Error retrieving user chats", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onEvent: "+e.getLocalizedMessage());
+                }
 
-                            // display a user from chats
-                            for (String id : usersList) {
-                                if (userProfile.getUid().equals(id)) {
-                                    if (users.size() != 0) {
-                                        for (UserProfile userProfile1 : users) {
-                                            if (!userProfile.getUid().equals(userProfile1.getUid())) {
-                                                users.add(userProfile);
-                                            }
-                                        }
-                                    } else {
+                users.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
+
+                    // display a user from chats
+                    for (String id : usersList) {
+                        if (userProfile.getUid().equals(id)) {
+                            if (users.size() != 0) {
+                                for (UserProfile userProfile1 : users) {
+                                    if (!userProfile.getUid().equals(userProfile1.getUid())) {
                                         users.add(userProfile);
                                     }
                                 }
+                            } else {
+                                users.add(userProfile);
                             }
                         }
-
-                        userAdapter = new UserAdapter(getContext(), users);
-                        chatsView.setAdapter(userAdapter);
-                        userAdapter.notifyDataSetChanged();
-
-
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), "Error retrieving user chats", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                }
+
+                userAdapter = new UserAdapter(getContext(), users, true);
+                chatsView.setAdapter(userAdapter);
+            }
+        });
         chatsView.setAdapter(userAdapter);
     }
 }
