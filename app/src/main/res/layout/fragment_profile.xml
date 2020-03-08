@@ -55,7 +55,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="sans-serif-light"
             android:text="Email ID"
-            android:textColor="@android:color/holo_blue_dark"
+            android:textColor="@android:color/darker_gray"
             android:textSize="14sp" />
 
     </RelativeLayout>
@@ -92,6 +92,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tag"
+                        android:textColor="@color/colorAccent"
                         android:textSize="13sp" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -149,7 +150,7 @@
                         android:textSize="13sp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewHospital"
+                        android:id="@+id/textViewAbout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:hint="Enter about yourself..."
